@@ -87,17 +87,35 @@ pipeline {
         }
 
         stage('Update Deployment File') {
+            environment {
+                GIT_REPO_NAME = "TEST_DJANGO_PRO"
+                GIT_USER_NAME = "Hr1thik"
+            }
+        
             steps {
-                sh '''
-                echo "Current Directory:"
-                pwd
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                    # Fix Git safe.directory issue
+                    git config --global --add safe.directory /var/lib/jenkins/workspace/TEST_DJANGO_PRO
         
-                echo "Files:"
-                ls -la
+                    # Configure Git user
+                    git config --global user.email "hrithikg121@gmail.com"
+                    git config --global user.name "Hr1thik"
         
-                echo "Git Status:"
-                git status
-                '''
+                    # Update Docker image tag in deployment manifest
+                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" test_django_pro_manifests/deployment.yml
+        
+                    # Check Git status
+                    git status
+        
+                    # Commit changes
+                    git add test_django_pro_manifests/deployment.yml
+                    git commit -m "Updated image to ${BUILD_NUMBER}" || true
+        
+                    # Push changes to GitHub
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                    '''
+                }
             }
         }
     }
