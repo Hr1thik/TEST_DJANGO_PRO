@@ -87,28 +87,17 @@ pipeline {
         }
 
         stage('Update Deployment File') {
-            environment {
-                GIT_REPO_NAME = "TEST_DJANGO_PRO"
-                GIT_USER_NAME = "Hr1thik"
-            }
-
             steps {
-                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                    git config user.email "hrithikg121@gmail.com"
-                    git config user.name "Hr1thik"
-
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" test_django_pro_manifests/deployment.yml || true
-
-                    git add test_django_pro_manifests/deployment.yml
-
-                    git commit -m "Updated image to ${BUILD_NUMBER}" || true
-
-                    git pull --rebase https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git main || true
-
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                    '''
-                }
+                sh '''
+                echo "Current Directory:"
+                pwd
+        
+                echo "Files:"
+                ls -la
+        
+                echo "Git Status:"
+                git status
+                '''
             }
         }
     }
