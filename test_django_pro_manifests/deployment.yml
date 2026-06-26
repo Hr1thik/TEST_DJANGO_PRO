@@ -20,7 +20,7 @@ spec:
       containers:
       - name: django-app
 
-        image: hr1thik/django-app:replaceImageTag
+        image: hr1thik/django-app:3
 
         imagePullPolicy: Always
 
